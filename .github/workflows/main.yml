@@ -11,10 +11,10 @@ jobs:
 
     steps:
     - name: Checkout repo
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
 
     - name: Set up Node.js
-      uses: actions/setup-node@v3
+      uses: actions/setup-node@v4
       with:
         node-version: 20
 
@@ -30,19 +30,17 @@ jobs:
         npx cap add android || echo "Android platform already added"
         npx cap copy
 
-    - name: Install Java and Android SDK
-      uses: reactivecircus/android-emulator-runner@v2
+    - name: Set up JDK 17
+      uses: actions/setup-java@v4
       with:
-        api-level: 34
-        target: google_apis
-        arch: x86_64
-        force-avd-creation: true
+        distribution: temurin
+        java-version: 17
 
     - name: Build APK
       run: ./android/gradlew -p android assembleDebug
 
     - name: Upload APK artifact
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: sk-law-app-apk
         path: android/app/build/outputs/apk/debug/app-debug.apk
