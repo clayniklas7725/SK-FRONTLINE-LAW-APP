@@ -1,0 +1,48 @@
+name: Build Android APK
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-apk:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repo
+      uses: actions/checkout@v3
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: 20
+
+    - name: Install dependencies
+      run: npm install
+
+    - name: Install Capacitor
+      run: npm install @capacitor/core @capacitor/cli
+
+    - name: Initialize Capacitor
+      run: |
+        npx cap init "SK Frontline Law App" "com.sasklaw.frontline" || echo "Already initialized"
+        npx cap add android || echo "Android platform already added"
+        npx cap copy
+
+    - name: Install Java and Android SDK
+      uses: reactivecircus/android-emulator-runner@v2
+      with:
+        api-level: 34
+        target: google_apis
+        arch: x86_64
+        force-avd-creation: true
+
+    - name: Build APK
+      run: ./android/gradlew -p android assembleDebug
+
+    - name: Upload APK artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: sk-law-app-apk
+        path: android/app/build/outputs/apk/debug/app-debug.apk
